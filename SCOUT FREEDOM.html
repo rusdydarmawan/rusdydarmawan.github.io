@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scout Freedom - Data Personal</title>
+  <style>
+    /* Reset dan dasar */
+    * {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      display: flex;
+      min-height: 100vh;
+      background: #f0f2f5;
+      color: #333;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    button {
+      cursor: pointer;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      width: 220px;
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      padding: 20px 0;
+    }
+    #sidebar .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 30px;
+      user-select: none;
+    }
+    #sidebar nav a {
+      display: block;
+      padding: 15px 30px;
+      color: white;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    #sidebar nav a.active,
+    #sidebar nav a:hover {
+      background: #34495e;
+    }
+    #sidebar nav a.logout {
+      margin-top: auto;
+      background: #c0392b;
+      text-align: center;
+    }
+    #sidebar nav a.logout:hover {
+      background: #e74c3c;
+    }
+
+    /* Main content */
+    #main-content {
+      margin-left: 220px;
+      flex-grow: 1;
+      padding: 20px 30px;
+      overflow-y: auto;
+      min-height: 100vh;
+      background: white;
+    }
+
+    h1, h2 {
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+    hr {
+      margin: 15px 0 30px 0;
+      border: none;
+      border-top: 1px solid #ddd;
+    }
+
+    /* Login */
+    #login-page {
+      margin: auto;
+      padding: 30px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 320px;
+      margin-top: 100px;
+    }
+    #login-page h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    #login-page label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    #login-page input[type="text"],
+    #login-page input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 18px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+    #login-page button {
+      width: 100%;
+      padding: 12px;
+      background: #2c3e50;
+      border: none;
+      color: white;
+      font-size: 1.1em;
+      border-radius: 4px;
+      font-weight: 700;
+      transition: background 0.3s;
+    }
+    #login-page button:hover {
+      background: #34495e;
+    }
+    #login-error {
+      color: #c0392b;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 0.95em;
+    }
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #ecf0f1;
+    }
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    /* Forms */
+    form {
+      margin-bottom: 30px;
+    }
+    form label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      margin-top: 10px;
+    }
+    form input[type="text"],
+    form input[type="date"],
+    form input[type="tel"],
+    form select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+    form button[type="submit"] {
+      margin-top: 15px;
+      padding: 10px 15px;
+      background: #27ae60;
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    form button[type="submit"]:hover {
+      background: #2ecc71;
+    }
+
+    /* Action buttons */
+    .action-btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-weight: 600;
+      margin-right: 5px;
+      transition: background 0.3s;
+      user-select: none;
+    }
+    .btn-edit {
+      background: #2980b9;
+      color: white;
+    }
+    .btn-edit:hover {
+      background: #3498db;
+    }
+    .btn-delete {
+      background: #c0392b;
+      color: white;
+    }
+    .btn-delete:hover {
+      background: #e74c3c;
+    }
+    .btn-download {
+      background: #27ae60;
+      color: white;
+    }
+    .btn-download:hover {
+      background: #2ecc71;
+    }
+
+    /* List of files */
+    ul.file-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul.file-list li {
+      padding: 8px 12px;
+      background: #ecf0f1;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95em;
+    }
+    ul.file-list li div {
+      flex-shrink: 0;
+    }
+
+    /* Responsive */
+    @media(max-width: 768px) {
+      #sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        padding: 10px 0;
+      }
+      #sidebar .logo {
+        margin-bottom: 0;
+        padding: 0 10px;
+      }
+      #sidebar nav a {
+        flex-grow: 1;
+        padding: 10px;
+        text-align: center;
+        font-size: 0.9em;
+      }
+      #main-content {
+        margin-left: 0;
+        padding: 15px 15px 30px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN PAGE -->
+  <div id="login-page">
+    <h2>Login Scout Freedom</h2>
+    <div id="login-error"></div>
+    <form id="login-form">
+      <label for="username">Username</label>
+      <input type="text" id="username" autocomplete="username" required />
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" required />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- APP WRAPPER (hidden until login) -->
+  <div id="app" style="display:none; width:100%;">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div class="logo">Scout Freedom</div>
+      <nav>
+        <a href="#" data-page="home" class="active">Home</a>
+        <a href="#" data-page="personal">Data Personal</a>
+        <a href="#" data-page="materi">Materi</a>
+        <a href="#" data-page="jadwal">Jadwal</a>
+        <a href="#" data-page="laporan">Laporan</a>
+        <a href="#" class="logout" id="logout-btn">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content">
+
+      <!-- HOME PAGE -->
+      <section id="page-home" class="page active">
+        <h1>Selamat Datang di Scout Freedom</h1>
+        <hr />
+        <p>Scout Freedom bisa diartikan sebagai Kebebasan Pramuka atau Kebebasan dalam Kepramukaan. Scout Freedom sendiri didirikan oleh Personil Pramuka Saka Bhayangkara yaitu Kak Gilangmas Ricky Pratama dan Rusdy Darmawan yang bertujuan untuk semangat kebebasan dalam menjelajahi, belajar, dan berkembang sebagai anggota pramuka, kebebasan berpikir, berkreasi, dan berkontribusi dalam kegiatan kepramukaan tanpa tekanan, representasi bahwa pramuka adalah ruang terbuka untuk semua kalangan, dengan nilai-nilai kebebasan, persaudaraan, dan kedisiplinan serta mengembangkan jiwa kepemimpinan, kekompakan, dan keterampilan para anggotanya melalui kegiatan pramuka yang inspiratif dan bermakna. Scout Freedom juga memiliki motto yaitu Baksya artinya berkreasi, berpikir kreatif, atau berkarya. Carya berarti 'latihan', 'perilaku', atau 'tindakan, dan Jatmika" dalam Kamus Besar Bahasa Indonesia adalah selalu sopan santun. KREATIF - KARAKTER - SOPAN</p>
+	<p>Scout Freedom adalah platform digital kepramukaan yang dirancang untuk memberikan ruang kebebasan, kreativitas, dan kemandirian bagi setiap anggota pramuka. Melalui fitur-fitur inovatif dan tampilan yang menarik, Scout Freedom menjadi wadah modern dalam mendokumentasikan data personal, materi pelatihan, jadwal kegiatan, hingga laporan pramuka secara efisien dan efektif — baik secara offline maupun online.</p>
+        <p>Sejak awal berdiri, kami selalu fokus pada pengembangan karakter dan keterampilan yang bermanfaat untuk kehidupan sehari-hari dan masa depan.</p>
+	<p>Selamat bergabung dan semoga kita bisa berkembang bersama-sama. <b>BAKSYA - CARYA - JATMIKA</b></p>
+        <img src="logo.png" alt="Scout Freedom" style="max-width:50%; margin-top:20px; border-radius:8px;" />
+      </section>
+
+      <!-- DATA PERSONAL PAGE -->
+      <section id="page-personal" class="page" style="display:none;">
+        <h2>Data Personal Anggota</h2>
+        <hr />
+        <form id="form-personal">
+          <input type="hidden" id="edit-index" value="-1" />
+          <label for="nama">Nama Lengkap</label>
+          <input type="text" id="nama" required />
+          <label for="tempatLahir">Tempat Lahir</label>
+          <input type="text" id="tempatLahir" required />
+          <label for="tanggalLahir">Tanggal Lahir</label>
+          <input type="date" id="tanggalLahir" required />
+          <label for="jk">Jenis Kelamin</label>
+          <select id="jk" required>
+            <option value="">-- Pilih Jenis Kelamin --</option>
+            <option value="Laki-laki">Laki-laki</option>
+            <option value="Perempuan">Perempuan</option>
+          </select>
+          <label for="golongan">Golongan</label>
+          <select id="golongan" required>
+            <option value="">-- Pilih Golongan --</option>
+            <option value="Siaga">Siaga</option>
+            <option value="Penggalang">Penggalang</option>
+            <option value="Penegak">Penegak</option>
+            <option value="Pandega">Pandega</option>
+            <option value="Pembina">Pembina</option>
+          </select>
+          <label for="alamat">Alamat</label>
+          <input type="text" id="alamat" required />
+          <label for="nohp">No. Handphone</label>
+          <input type="tel" id="nohp" required />
+          <label for="tahun">Tahun Bergabung</label>
+          <input type="text" id="tahun" required placeholder="Misal: 2024" pattern="\d{4}" title="Tahun harus berupa angka 4 digit" />
+          <button type="submit">Simpan Data</button>
+        </form>
+
+        <table id="table-personal">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Tempat Lahir</th>
+              <th>Tanggal Lahir</th>
+              <th>JK</th>
+              <th>Golongan</th>
+              <th>Alamat</th>
+              <th>No. HP</th>
+              <th>Tahun</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data muncul di sini -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- MATERI PAGE -->
+      <section id="page-materi" class="page" style="display:none;">
+        <h2>Materi Pramuka</h2>
+        <hr />
+        <form id="form-upload-materi">
+          <label for="materi-file">Upload Materi (PDF, DOC, JPG, PNG)</label>
+          <input type="file" id="materi-file" accept=".pdf,.doc,.docx,image/jpeg,image/png" required />
+          <button type="submit">Upload Materi</button>
+        </form>
+        <ul id="materi-list" class="file-list">
+          <!-- Daftar materi akan tampil di sini -->
+        </ul>
+      </section>
+
+      <!-- JADWAL PAGE -->
+      <section id="page-jadwal" class="page" style="display:none;">
+        <h2>Jadwal Latihan</h2>
+        <hr />
+        <form id="form-jadwal">
+          <input type="hidden" id="edit-jadwal-index" value="-1" />
+          <label for="namaSekolah">Nama Sekolah</label>
+          <input type="text" id="namaSekolah" required />
+          <label for="waktu">Waktu Kegiatan</label>
+          <input type="datetime-local" id="waktu" required />
+          <label for="kegiatan">Kegiatan</label>
+          <input type="text" id="kegiatan" required />
+          <button type="submit">Simpan Jadwal</button>
+        </form>
+
+        <table id="table-jadwal">
+          <thead>
+            <tr>
+              <th>Nama Sekolah</th>
+              <th>Waktu</th>
+              <th>Kegiatan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data jadwal muncul di sini -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- LAPORAN PAGE -->
+      <section id="page-laporan" class="page" style="display:none;">
+        <h2>Laporan Foto Kegiatan</h2>
+        <hr />
+        <form id="form-upload-laporan">
+          <label for="laporan-file">Upload Foto (JPG, PNG)</label>
+          <input type="file" id="laporan-file" accept="image/jpeg,image/png" required />
+          <button type="submit">Upload Foto</button>
+        </form>
+        <ul id="laporan-list" class="file-list">
+          <!-- Daftar laporan akan tampil di sini -->
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Login handling
+    const loginPage = document.getElementById('login-page');
+    const app = document.getElementById('app');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+
+    function setActivePage(page) {
+      document.querySelectorAll('.page').forEach(p => {
+        p.style.display = 'none';
+        p.classList.remove('active');
+      });
+      const pageEl = document.getElementById('page-' + page);
+      if (pageEl) {
+        pageEl.style.display = '';
+        pageEl.classList.add('active');
+      }
+      // Sidebar active link
+      document.querySelectorAll('#sidebar nav a').forEach(a => {
+        if (a.dataset.page === page) {
+          a.classList.add('active');
+        } else {
+          a.classList.remove('active');
+        }
+      });
+    }
+
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const username = loginForm.username.value.trim();
+      const password = loginForm.password.value;
+      if (username === 'admin' && password === '12345') {
+        loginPage.style.display = 'none';
+        app.style.display = 'flex';
+        setActivePage('home');
+        initApp();
+  } else {
+    loginError.textContent = 'Username atau password salah!';
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', e => {
+  e.preventDefault();
+  if (confirm('Anda yakin ingin logout?')) {
+    app.style.display = 'none';
+    loginPage.style.display = '';
+    loginForm.reset();
+    loginError.textContent = '';
+  }
+});
+
+// App Initialization
+function initApp() {
+  // Sidebar navigation
+  document.querySelectorAll('#sidebar nav a[data-page]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      setActivePage(link.dataset.page);
+    });
+  });
+
+  // Load Data Personal
+  loadDataPersonal();
+  document.getElementById('form-personal').addEventListener('submit', submitPersonal);
+
+  // Load Materi
+  loadMateri();
+  document.getElementById('form-upload-materi').addEventListener('submit', uploadMateri);
+
+  // Load Jadwal
+  loadJadwal();
+  document.getElementById('form-jadwal').addEventListener('submit', submitJadwal);
+
+  // Load Laporan
+  loadLaporan();
+  document.getElementById('form-upload-laporan').addEventListener('submit', uploadLaporan);
+}
+
+// ----- DATA PERSONAL -----
+const STORAGE_PERSONAL = 'scoutfreedom_data_personal';
+
+function getDataPersonal() {
+  const data = localStorage.getItem(STORAGE_PERSONAL);
+  return data ? JSON.parse(data) : [];
+}
+function saveDataPersonal(data) {
+  localStorage.setItem(STORAGE_PERSONAL, JSON.stringify(data));
+}
+
+function loadDataPersonal() {
+  const data = getDataPersonal();
+  const tbody = document.querySelector('#table-personal tbody');
+  tbody.innerHTML = '';
+  data.forEach((item, index) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.nama}</td>
+      <td>${item.tempatLahir}</td>
+      <td>${item.tanggalLahir}</td>
+      <td>${item.jk}</td>
+      <td>${item.golongan}</td>
+      <td>${item.alamat}</td>
+      <td>${item.nohp}</td>
+      <td>${item.tahun}</td>
+      <td>
+        <button class="action-btn btn-edit" onclick="editPersonal(${index})">Edit</button>
+        <button class="action-btn btn-delete" onclick="deletePersonal(${index})">Hapus</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function submitPersonal(e) {
+  e.preventDefault();
+  const index = +document.getElementById('edit-index').value;
+  const nama = document.getElementById('nama').value.trim();
+  const tempatLahir = document.getElementById('tempatLahir').value.trim();
+  const tanggalLahir = document.getElementById('tanggalLahir').value;
+  const jk = document.getElementById('jk').value;
+  const golongan = document.getElementById('golongan').value;
+  const alamat = document.getElementById('alamat').value.trim();
+  const nohp = document.getElementById('nohp').value.trim();
+  const tahun = document.getElementById('tahun').value.trim();
+
+  if (!nama || !tempatLahir || !tanggalLahir || !jk || !golongan || !alamat || !nohp || !tahun) {
+    alert('Mohon lengkapi semua data.');
+    return;
+  }
+
+  const data = getDataPersonal();
+
+  if (index === -1) {
+    data.push({ nama, tempatLahir, tanggalLahir, jk, golongan, alamat, nohp, tahun });
+  } else {
+    data[index] = { nama, tempatLahir, tanggalLahir, jk, golongan, alamat, nohp, tahun };
+  }
+  saveDataPersonal(data);
+  loadDataPersonal();
+  e.target.reset();
+  document.getElementById('edit-index').value = -1;
+  alert('Data personal berhasil disimpan.');
+}
+
+function editPersonal(i) {
+  const data = getDataPersonal();
+  if (!data[i]) return;
+  const item = data[i];
+  document.getElementById('edit-index').value = i;
+  document.getElementById('nama').value = item.nama;
+  document.getElementById('tempatLahir').value = item.tempatLahir;
+  document.getElementById('tanggalLahir').value = item.tanggalLahir;
+  document.getElementById('jk').value = item.jk;
+  document.getElementById('golongan').value = item.golongan;
+  document.getElementById('alamat').value = item.alamat;
+  document.getElementById('nohp').value = item.nohp;
+  document.getElementById('tahun').value = item.tahun;
+  setActivePage('personal');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function deletePersonal(i) {
+  if (confirm('Yakin ingin menghapus data ini?')) {
+    const data = getDataPersonal();
+    data.splice(i,1);
+    saveDataPersonal(data);
+    loadDataPersonal();
+  }
+}
+
+// ----- MATERI -----
+const STORAGE_MATERI = 'scoutfreedom_materi_files';
+
+function getMateriFiles() {
+  const data = localStorage.getItem(STORAGE_MATERI);
+  return data ? JSON.parse(data) : [];
+}
+function saveMateriFiles(files) {
+  localStorage.setItem(STORAGE_MATERI, JSON.stringify(files));
+}
+
+function loadMateri() {
+  const files = getMateriFiles();
+  const list = document.getElementById('materi-list');
+  list.innerHTML = '';
+  if(files.length === 0) {
+    list.innerHTML = '<li>Belum ada materi yang diupload.</li>';
+    return;
+  }
+  files.forEach((file, idx) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span>${file.name}</span>
+      <div>
+        <button class="action-btn btn-download" onclick="downloadFile('materi', ${idx})">Download</button>
+        <button class="action-btn btn-delete" onclick="deleteMateri(${idx})">Hapus</button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+}
+
+function uploadMateri(e) {
+  e.preventDefault();
+  const input = document.getElementById('materi-file');
+  const file = input.files[0];
+  if (!file) return alert('Pilih file materi terlebih dahulu.');
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const files = getMateriFiles();
+    files.push({ name: file.name, data: event.target.result });
+    saveMateriFiles(files);
+    loadMateri();
+    e.target.reset();
+    alert('Materi berhasil diupload.');
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteMateri(i) {
+  if (confirm('Yakin ingin menghapus materi ini?')) {
+    const files = getMateriFiles();
+    files.splice(i, 1);
+    saveMateriFiles(files);
+    loadMateri();
+  }
+}
+
+// ----- JADWAL -----
+const STORAGE_JADWAL = 'scoutfreedom_jadwal';
+
+function getJadwal() {
+  const data = localStorage.getItem(STORAGE_JADWAL);
+  return data ? JSON.parse(data) : [];
+}
+function saveJadwal(data) {
+  localStorage.setItem(STORAGE_JADWAL, JSON.stringify(data));
+}
+
+function loadJadwal() {
+  const data = getJadwal();
+  const tbody = document.querySelector('#table-jadwal tbody');
+  tbody.innerHTML = '';
+  if(data.length === 0){
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada jadwal latihan.</td></tr>';
+    return;
+  }
+  data.forEach((item, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.namaSekolah}</td>
+      <td>${new Date(item.waktu).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}</td>
+      <td>${item.kegiatan}</td>
+      <td>
+        <button class="action-btn btn-edit" onclick="editJadwal(${i})">Edit</button>
+        <button class="action-btn btn-delete" onclick="deleteJadwal(${i})">Hapus</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function submitJadwal(e) {
+  e.preventDefault();
+  const index = +document.getElementById('edit-jadwal-index').value;
+  const namaSekolah = document.getElementById('namaSekolah').value.trim();
+  const waktu = document.getElementById('waktu').value;
+  const kegiatan = document.getElementById('kegiatan').value.trim();
+
+  if (!namaSekolah || !waktu || !kegiatan) {
+    alert('Mohon lengkapi semua data jadwal.');
+    return;
+  }
+
+  const data = getJadwal();
+
+  if(index === -1){
+    data.push({ namaSekolah, waktu, kegiatan });
+  } else {
+    data[index] = { namaSekolah, waktu, kegiatan };
+  }
+  saveJadwal(data);
+  loadJadwal();
+  e.target.reset();
+  document.getElementById('edit-jadwal-index').value = -1;
+  alert('Jadwal latihan berhasil disimpan.');
+}
+
+function editJadwal(i) {
+  const data = getJadwal();
+  if (!data[i]) return;
+  const item = data[i];
+  document.getElementById('edit-jadwal-index').value = i;
+  document.getElementById('namaSekolah').value = item.namaSekolah;
+  document.getElementById('waktu').value = item.waktu;
+  document.getElementById('kegiatan').value = item.kegiatan;
+  setActivePage('jadwal');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function deleteJadwal(i) {
+  if(confirm('Yakin ingin menghapus jadwal ini?')){
+    const data = getJadwal();
+    data.splice(i,1);
+    saveJadwal(data);
+    loadJadwal();
+  }
+}
+
+// ----- LAPORAN -----
+const STORAGE_LAPORAN = 'scoutfreedom_laporan_foto';
+
+function getLaporan() {
+  const data = localStorage.getItem(STORAGE_LAPORAN);
+  return data ? JSON.parse(data) : [];
+}
+function saveLaporan(data) {
+  localStorage.setItem(STORAGE_LAPORAN, JSON.stringify(data));
+}
+
+function loadLaporan() {
+  const data = getLaporan();
+  const container = document.getElementById('laporan-foto-container');
+  container.innerHTML = '';
+  if(data.length === 0){
+    container.innerHTML = '<p>Belum ada foto laporan kegiatan.</p>';
+    return;
+  }
+  data.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'laporan-item';
+    div.innerHTML = `
+      <img src="${item.data}" alt="${item.name}" />
+      <div>
+        <span>${item.name}</span>
+        <button class="action-btn btn-delete" onclick="deleteLaporan(${i})">Hapus</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function uploadLaporan(e) {
+  e.preventDefault();
+  const input = document.getElementById('laporan-file');
+  const file = input.files[0];
+  if (!file) return alert('Pilih foto laporan terlebih dahulu.');
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const data = getLaporan();
+    data.push({ name: file.name, data: event.target.result });
+    saveLaporan(data);
+    loadLaporan();
+    e.target.reset();
+    alert('Foto laporan berhasil diupload.');
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteLaporan(i) {
+  if(confirm('Yakin ingin menghapus foto laporan ini?')){
+    const data = getLaporan();
+    data.splice(i,1);
+    saveLaporan(data);
+    loadLaporan();
+  }
+}
+
+// ----- DOWNLOAD FILES -----
+function downloadFile(type, index) {
+  let dataList;
+  if(type === 'materi') dataList = getMateriFiles();
+  else if(type === 'laporan') dataList = getLaporan();
+  else return;
+
+  if (!dataList[index]) return;
+
+  const link = document.createElement('a');
+  link.href = dataList[index].data;
+  link.download = dataList[index].name;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Initialize app only after successful login
+initApp();
+</script>
+</body>
+</html>
